@@ -1035,9 +1035,13 @@ class PDFBuilder:
                 else:
                     wm_font_sz, dx_step, dy_step = 32, 400, 220
             c.setFont("CJK", wm_font_sz)
-            for dy in range(-400, 500, dy_step):
-                for dx in range(-500, 600, dx_step):
-                    c.drawCentredString(dx, dy, wm)
+            # Single centered watermark when spacing is huge (>= 2000), otherwise tile
+            if dx_step >= 2000 and dy_step >= 2000:
+                c.drawCentredString(0, -wm_font_sz/3, wm)
+            else:
+                for dy in range(-400, 500, dy_step):
+                    for dx in range(-500, 600, dx_step):
+                        c.drawCentredString(dx, dy, wm)
             c.rotate(-wm_angle); c.translate(-self.page_w/2, -self.page_h/2)
 
         # Header (skip if top-band decoration already drew header)

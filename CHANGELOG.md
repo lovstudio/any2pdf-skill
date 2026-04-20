@@ -3,6 +3,12 @@
 All notable changes to this skill are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/)
 
+## [1.3.1] - 2026-04-20
+
+### Fixed
+
+- Watermark: when `--wm-spacing-x` and `--wm-spacing-y` are both ≥ 2000, render a single horizontally + vertically centered watermark (with baseline compensation) instead of tiling. Enables large single-mark watermarks (e.g. `--wm-size 200 --wm-spacing-x 9999 --wm-spacing-y 9999`).
+
 ## [1.3.0] - 2026-04-20
 
 ### Added
