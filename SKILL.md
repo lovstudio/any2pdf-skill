@@ -18,7 +18,7 @@ compatibility: >
   Linux: uses Carlito, Liberation Serif, Droid Sans Fallback, DejaVu Sans Mono.
 metadata:
   author: lovstudio
-  version: "1.2.0"
+  version: "1.3.0"
   tags: markdown pdf cjk reportlab typesetting
 ---
 
@@ -74,6 +74,7 @@ concise — like a design assistant, not a config form:
  i) Nord 冰霜 — 蓝灰北欧风，清爽现代
  j) 海洋      — 青绿色调，清新自然
  k) LaTeX 清爽 — pandoc+XeLaTeX 原生排版，无封面无装饰，干净学术风（需装 pandoc+texlive）
+ l) 咨询深蓝  — 深海军蓝色块 + 白底 + 大写左对齐标题，麦肯锡 / BCG / Deloitte 研究报告风格
 
 ━━━ 🖼 扉页图片（封面之后的全页插图） ━━━
  1) 跳过
@@ -122,6 +123,7 @@ concise — like a design assistant, not a config form:
 | i) Nord | `nord-frost` | Nord color scheme |
 | j) 海洋 | `ocean-breeze` | — |
 | k) LaTeX 清爽 | `latex-clean` | pandoc+XeLaTeX 原生排版，无封面 |
+| l) 咨询深蓝 | `consulting-navy` | McKinsey / BCG / Deloitte deep-research report |
 
 ### Handling AI-Generated Frontispiece
 
@@ -233,7 +235,7 @@ references before invoking md2pdf.
 ## Themes
 
 Available: `warm-academic`, `nord-frost`, `github-light`, `solarized-light`,
-`paper-classic`, `ocean-breeze`.
+`paper-classic`, `ocean-breeze`, `consulting-navy`.
 
 Each theme defines: page background, ink color, accent color, faded text, border, code background, watermark tint.
 
@@ -293,6 +295,7 @@ Each preset defines a complete set of pandoc `-V` flags. Use the full command fr
 | github-light | `blue` | `blue` | `blue` | `[gray]{0.92}` | 极简蓝白，程序员友好 |
 | ink-wash | `black` | `black` | `black` | `[gray]{0.92}` | 水墨素雅，文学/设计类 |
 | nord-frost | `teal` | `teal` | `teal` | `[gray]{0.9}` | 北欧冰霜蓝灰 |
+| consulting-navy | `blue` | `blue` | `blue` | `[gray]{0.88}` | 咨询深蓝，研究报告风 |
 
 #### chinese-red 完整示例（本次一滕项目实际使用）
 

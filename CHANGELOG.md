@@ -3,6 +3,20 @@
 All notable changes to this skill are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/)
 
+## [1.3.0] - 2026-04-20
+
+### Added
+
+- New theme `consulting-navy` — McKinsey / BCG / Deloitte deep-research-report aesthetic: navy hero cover block, ALL-CAPS section banners with thick left bar, left page-stripe, white canvas + serif body
+- New `cover_style: consulting-block` — solid navy hero with white title + meta column strip (MODE / SOURCES / CONFIDENCE / DATE)
+- New `heading_decoration: banner` — H2 renders as tinted box with thick accent left bar (inline, no page break)
+- New `SectionBanner` flowable supporting CJK + Latin in section titles
+- Theme picker option `l) 咨询深蓝` and pandoc preset row for the new theme
+
+### Fixed
+
+- `_preprocess_md` now strips full leading YAML frontmatter (`--- ... ---`); previously only `title:`/`subtitle:`/`author:`/`date:` lines were filtered, so fields like `mode:` / `tagline:` leaked into the body as prose
+
 ## [1.2.0] - 2026-04-13
 
 ### Added

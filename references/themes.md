@@ -84,6 +84,14 @@ Best for: Product reports, marketing docs, light technical content.
  "accent":"#2A9D8F","accent_light":"#64CCBF","border":"#C8DDD6"}
 ```
 
+### consulting-navy
+White canvas, dark navy accent. ALL-CAPS left-aligned section headings with underline rule, left page-stripe, serif body. Cover is a solid navy block with white title.
+Best for: McKinsey / BCG / Deloitte-style deep-research reports, market analyses, white papers.
+```python
+{"canvas":"#FFFFFF","canvas_sec":"#F4F6F9","ink":"#1A1A1A","ink_faded":"#5A6573",
+ "accent":"#1E3A5F","accent_light":"#3A5C82","border":"#D6DCE5"}
+```
+
 ## Custom Theme
 
 Pass a JSON file path to `--theme-file`:

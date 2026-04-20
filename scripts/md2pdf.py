@@ -331,6 +331,23 @@ THEMES = {
             "page_decoration":"none",
         }
     },
+    "consulting-navy": {
+        # McKinsey/BCG/Deloitte deep-research aesthetic:
+        # white canvas, dark-navy section blocks, ALL-CAPS left-aligned headings,
+        # serif body, sans heading. Cover = solid navy block with white title.
+        "canvas":"#FFFFFF","canvas_sec":"#F4F6F9","ink":"#1A1A1A","ink_faded":"#5A6573",
+        "accent":"#1E3A5F","accent_light":"#3A5C82","border":"#D6DCE5",
+        "watermark_rgba":(0.78,0.82,0.88,0.08),
+        "layout": {
+            "margins":(22, 22, 26, 24),
+            "body_font":"Serif","body_size":10.5,"body_leading":16.5,
+            "h1_size":22,"h2_size":16,"h3_size":11,
+            "heading_align":"left","heading_decoration":"banner",
+            "header_style":"minimal","code_style":"bg",
+            "cover_style":"consulting-block",
+            "page_decoration":"left-stripe",
+        }
+    },
 }
 
 def load_theme(name, theme_file=None):
@@ -545,6 +562,50 @@ class LeftBorderParagraph(Flowable):
         self.canv.setStrokeColor(self._bc); self.canv.setLineWidth(self._bw)
         self.canv.line(2, -2, 2, self.height + 2)
 
+class SectionBanner(Flowable):
+    """Consulting-report section banner: ALL-CAPS heading on a tinted bg
+    with a thick accent left bar + thin underline rule.
+    Used for top-level H2 section markers in the consulting-navy theme."""
+    def __init__(self, frame_w, title, accent, ink, tint, size=15):
+        Flowable.__init__(self)
+        self.width = frame_w
+        self.height = 14*mm
+        self._title = title
+        self._accent = accent
+        self._ink = ink
+        self._tint = tint
+        self._size = size
+
+    def draw(self):
+        c = self.canv
+        # Tinted background block
+        c.setFillColor(self._tint)
+        c.rect(0, 0, self.width, self.height, fill=1, stroke=0)
+        # Thick accent left bar
+        c.setFillColor(self._accent)
+        c.rect(0, 0, 2.5*mm, self.height, fill=1, stroke=0)
+        # Bottom thin underline rule
+        c.setStrokeColor(self._accent); c.setLineWidth(0.6)
+        c.line(0, 0, self.width, 0)
+        # Title text — left-aligned, vertically centered, SansBold for Latin, CJK for CJK
+        c.setFillColor(self._accent)
+        text_x = 7*mm
+        text_y = self.height/2 - self._size*0.32
+        title_up = self._title.upper()
+        # Draw with font switching, forcing SansBold for non-CJK
+        buf, in_cjk = [], False
+        segs = []
+        for ch in title_up:
+            cj = _is_cjk(ch)
+            if cj != in_cjk and buf:
+                segs.append(("CJK" if in_cjk else "SansBold", ''.join(buf))); buf = []
+            buf.append(ch); in_cjk = cj
+        if buf: segs.append(("CJK" if in_cjk else "SansBold", ''.join(buf)))
+        x = text_x
+        for font, txt in segs:
+            c.setFont(font, self._size); c.drawString(x, text_y, txt)
+            x += c.stringWidth(txt, font, self._size)
+
 # ═══════════════════════════════════════════════════════════════════════
 # PDF BUILDER
 # ═══════════════════════════════════════════════════════════════════════
@@ -624,6 +685,8 @@ class PDFBuilder:
             self._cover_left_aligned(c, T, cx)
         elif cover == "minimal":
             self._cover_minimal(c, T, cx)
+        elif cover == "consulting-block":
+            self._cover_consulting_block(c, T, cx)
         else:
             self._cover_centered(c, T, cx)
 
@@ -751,6 +814,78 @@ class PDFBuilder:
             c.setFillColor(T["ink_faded"]); _draw_mixed(c, cx, 35*mm, author, 10, anchor="center")
         dt = self.cfg.get("date", str(date.today()))
         c.setFillColor(T["ink_faded"]); _draw_mixed(c, cx, 25*mm, dt, 9, anchor="center")
+
+    def _cover_consulting_block(self, c, T, cx):
+        """Consulting/research-report cover: top half is a solid navy block
+        with white title; bottom half holds a meta strip + author/date.
+        Inspired by McKinsey / BCG / Deloitte deep-research reports."""
+        # Solid navy hero block — top ~55% of the page
+        block_h = self.page_h * 0.55
+        block_y = self.page_h - block_h
+        c.setFillColor(T["accent"])
+        c.rect(0, block_y, self.page_w, block_h, fill=1, stroke=0)
+
+        # Title (white) — left-aligned, near bottom of the navy block
+        lx = 22*mm
+        title = self.cfg.get("title", "Document")
+        c.setFillColor(white)
+        # Reserve a top spacer inside the block, then place title near bottom
+        title_y = block_y + 70*mm
+        btm = _draw_mixed(c, lx, title_y, title, 26, anchor="left",
+                          max_w=self.page_w - lx - 22*mm)
+
+        # Subtitle / meta line (light gray on navy)
+        sub = self.cfg.get("subtitle", "")
+        sub_segs = self.cfg.get("subtitle_segs")
+        meta_y = block_y + 30*mm
+        if sub_segs:
+            c.setFillColor(HexColor("#C9D2DD")); _draw_mixed_segs(c, lx, meta_y, sub_segs)
+        elif sub:
+            c.setFillColor(HexColor("#C9D2DD"))
+            _draw_mixed(c, lx, meta_y, sub, 11, anchor="left",
+                        max_w=self.page_w - lx - 22*mm)
+
+        # Date · sources line just above bottom of the block
+        dt = self.cfg.get("date", str(date.today()))
+        stats = self.cfg.get("stats_line", "")
+        bullet = "  \u2022  "
+        bottom_meta = dt
+        if stats:
+            bottom_meta = f"{dt}{bullet}{stats}"
+        c.setFillColor(HexColor("#A8B4C2"))
+        _draw_mixed(c, lx, block_y + 14*mm, bottom_meta, 9, anchor="left",
+                    max_w=self.page_w - lx - 22*mm)
+
+        # ── Below the navy block: light meta-strip with key facts ──
+        strip_y = block_y - 18*mm
+        c.setFillColor(T["ink"])
+
+        # Render up to 4 columns: Mode / Sources / Confidence / Date
+        # Source: cfg["stats_line"] formatted as "Mode: Deep · Sources: 28 · ..."
+        if stats:
+            # Split on either · or 3+ spaces
+            parts = [p.strip() for p in re.split(r'\s*[\u00b7\u2022]\s*|\s{3,}', stats) if p.strip()]
+            if not parts:
+                parts = [stats]
+            col_w = (self.page_w - 2*lx) / max(1, len(parts))
+            for idx, part in enumerate(parts):
+                cxn = lx + idx * col_w
+                m = re.match(r'^([^:：]+)[:：]\s*(.*)$', part)
+                if m:
+                    label, val = m.group(1), m.group(2)
+                    c.setFillColor(T["ink_faded"]); c.setFont("SansBold", 8.5)
+                    c.drawString(cxn, strip_y, label.strip().upper())
+                    c.setFillColor(T["ink"])
+                    _draw_mixed(c, cxn, strip_y - 14, val.strip(), 11, anchor="left")
+                else:
+                    c.setFillColor(T["ink"])
+                    _draw_mixed(c, cxn, strip_y - 6, part, 10, anchor="left")
+
+        # ── Author at bottom-left ──
+        author = self.cfg.get("author", "")
+        if author:
+            c.setFillColor(T["ink_faded"])
+            _draw_mixed(c, lx, 22*mm, author, 10, anchor="left")
 
     def _frontispiece_page(self, c, doc):
         """Full-page image page after cover."""
@@ -1053,7 +1188,21 @@ class PDFBuilder:
 
         md = _collapse_images(md)
 
+        # Strip leading YAML frontmatter (--- ... ---) before the first heading.
+        # Some pipelines emit a full frontmatter block (title/subtitle/date/mode/
+        # author/...) — without this, the body parser leaks `mode: deep` etc. as
+        # prose text on the first content page.
         lines = md.split('\n')
+        if lines and lines[0].strip() == '---':
+            j = 1
+            while j < len(lines) and lines[j].strip() != '---':
+                j += 1
+            if j < len(lines):  # found closing ---
+                lines = lines[j + 1:]
+                # also drop any blank lines immediately after
+                while lines and lines[0].strip() == '':
+                    lines = lines[1:]
+
         out = []
         in_code = False
         for line in lines:
@@ -1115,9 +1264,16 @@ class PDFBuilder:
                (re.match(r'^# .+', stripped) and not stripped.startswith('## ')):
                 if re.match(r'^# .+', stripped):
                     title = stripped.lstrip('#').strip()
+                    hdeco = self.L["heading_decoration"]
+                    # banner mode: doc-title H1 is already on the cover; skip
+                    # the separator page entirely so the first H2 banner sits
+                    # at the top of page 1 (inline, consulting-report look).
+                    if hdeco == "banner":
+                        cm = ChapterMark(title, level=0); story.append(cm)
+                        toc.append(('part', title, cm.key))
+                        i += 1; continue
                     story.append(PageBreak())
                     cm = ChapterMark(title, level=0); story.append(cm)
-                    hdeco = self.L["heading_decoration"]
                     hts = self.cfg.get("heading_top_spacer")
                     story.append(Spacer(1, hts*mm if hts else self.body_h * 0.35))
                     if hdeco == "rules":
@@ -1140,9 +1296,19 @@ class PDFBuilder:
             # H2 — Chapter heading
             if stripped.startswith('## '):
                 title = stripped[3:].strip()
-                story.append(PageBreak())
-                cm = ChapterMark(title, level=1); story.append(cm)
                 hdeco = self.L["heading_decoration"]
+                cm = ChapterMark(title, level=1); story.append(cm)
+                if hdeco == "banner":
+                    # Consulting-report section banner (inline, no page-break)
+                    story.append(Spacer(1, 6*mm))
+                    story.append(SectionBanner(
+                        self.body_w, title,
+                        accent=self.T["accent"], ink=self.T["ink"],
+                        tint=self.T["canvas_sec"], size=self.L["h2_size"]))
+                    story.append(Spacer(1, 4*mm))
+                    toc.append(('chapter', title, cm.key))
+                    i += 1; continue
+                story.append(PageBreak())
                 hts = self.cfg.get("heading_top_spacer")
                 story.append(Spacer(1, hts*mm if hts else 12*mm))
                 story.append(Paragraph(md_inline(title, ah), ST['chapter']))
