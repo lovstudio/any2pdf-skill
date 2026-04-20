@@ -70,3 +70,28 @@ jobs:
           git commit -m "chore: bump version to $NEW"
           git tag "v$NEW"
           git push origin main --tags
+
+      - name: Extract release notes from CHANGELOG
+        if: steps.skip.outputs.skip == 'false' && steps.check.outputs.exists == 'false'
+        id: notes
+        run: |
+          NEW="${{ steps.bump.outputs.new }}"
+          if [ -f CHANGELOG.md ]; then
+            NOTES=$(awk -v ver="[$NEW]" '
+              /^## / { if (found) exit; if (index($0, ver)) { found=1; next } }
+              found { print }
+            ' CHANGELOG.md)
+          fi
+          if [ -z "$NOTES" ]; then NOTES="Release v$NEW"; fi
+          {
+            echo 'notes<<EOF_NOTES'
+            echo "$NOTES"
+            echo 'EOF_NOTES'
+          } >> $GITHUB_OUTPUT
+
+      - uses: softprops/action-gh-release@v2
+        if: steps.skip.outputs.skip == 'false' && steps.check.outputs.exists == 'false'
+        with:
+          tag_name: v${{ steps.bump.outputs.new }}
+          name: v${{ steps.bump.outputs.new }}
+          body: ${{ steps.notes.outputs.notes }}
