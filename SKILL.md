@@ -18,7 +18,7 @@ compatibility: >
   Linux: uses Carlito, Liberation Serif, Droid Sans Fallback, DejaVu Sans Mono.
 metadata:
   author: lovstudio
-  version: "1.3.0"
+  version: "1.3.2"
   tags: markdown pdf cjk reportlab typesetting
 ---
 
@@ -215,7 +215,7 @@ references before invoking md2pdf.
 | `--toc` | `true` | Generate table of contents |
 | `--page-size` | `A4` | Page size (A4 or Letter) |
 | `--frontispiece` | `""` | Full-page image after cover |
-| `--banner` | `""` | Back cover banner image |
+| `--banner` | bundled `assets/backcover-banner.jpg` | Back cover banner image (pass `none` to disable) |
 | `--header-title` | `""` | Report title in page header |
 | `--footer-left` | author | Brand/author in footer |
 | `--stats-line` | `""` | Stats on cover |
@@ -226,11 +226,11 @@ references before invoking md2pdf.
 | `--code-max-lines` | `30` | Max lines per code block |
 | `--image-cover` | `false` | Use frontispiece as full-bleed cover (page 1), text cover becomes page 2 |
 | `--heading-top-spacer` | `5` | Top spacer before H1/H2 chapter titles in mm |
-| `--wm-size` | `52` | Watermark font size |
-| `--wm-opacity` | theme default | Watermark opacity (0.0–1.0) |
+| `--wm-size` | auto (half page width) | Watermark font size; auto-scales so text width ≈ 50% of page width |
+| `--wm-opacity` | `0.1` | Watermark opacity (0.0–1.0) |
 | `--wm-angle` | `35` | Watermark rotation angle in degrees |
-| `--wm-spacing-x` | `220` | Watermark horizontal spacing in pt |
-| `--wm-spacing-y` | `160` | Watermark vertical spacing in pt |
+| `--wm-spacing-x` | `9999` | Watermark horizontal spacing in pt (≥2000 = single centered per page) |
+| `--wm-spacing-y` | `9999` | Watermark vertical spacing in pt (≥2000 = single centered per page) |
 
 ## Themes
 

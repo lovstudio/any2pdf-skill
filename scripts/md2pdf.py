@@ -1020,20 +1020,19 @@ class PDFBuilder:
                 wm_color = T["wm_color"]
             c.setFillColor(wm_color)
             c.translate(self.page_w/2, self.page_h/2); c.rotate(wm_angle)
-            # Use explicit params if provided, otherwise auto-size by text length
+            # Size: if --wm-size not given, auto-scale so text width ≈ half page width.
+            # Spacing: if both >= 2000, single centered watermark; otherwise tile.
             wm_size = self.cfg.get("wm_size")
-            wm_sx = self.cfg.get("wm_spacing_x")
-            wm_sy = self.cfg.get("wm_spacing_y")
-            if wm_size and wm_sx and wm_sy:
-                wm_font_sz, dx_step, dy_step = int(wm_size), int(wm_sx), int(wm_sy)
+            wm_sx = self.cfg.get("wm_spacing_x") or 9999
+            wm_sy = self.cfg.get("wm_spacing_y") or 9999
+            if wm_size:
+                wm_font_sz = int(wm_size)
             else:
-                wm_len = len(wm)
-                if wm_len <= 5:
-                    wm_font_sz, dx_step, dy_step = 52, 220, 160
-                elif wm_len <= 10:
-                    wm_font_sz, dx_step, dy_step = 40, 320, 200
-                else:
-                    wm_font_sz, dx_step, dy_step = 32, 400, 220
+                target_w = self.page_w * 0.5
+                base = 100.0
+                base_w = c.stringWidth(wm, "CJK", base) or 1.0
+                wm_font_sz = max(12, int(base * target_w / base_w))
+            dx_step, dy_step = int(wm_sx), int(wm_sy)
             c.setFont("CJK", wm_font_sz)
             # Single centered watermark when spacing is huge (>= 2000), otherwise tile
             if dx_step >= 2000 and dy_step >= 2000:
@@ -1549,7 +1548,9 @@ def main():
     parser.add_argument("--toc", default=True, type=lambda x: x.lower() != 'false', help="Generate TOC")
     parser.add_argument("--page-size", default="A4", choices=["A4","Letter"], help="Page size")
     parser.add_argument("--frontispiece", default="", help="Path to full-page image after cover")
-    parser.add_argument("--banner", default="", help="Path to back cover banner image")
+    _default_banner = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "backcover-banner.jpg")
+    _default_banner = os.path.normpath(_default_banner) if os.path.exists(_default_banner) else ""
+    parser.add_argument("--banner", default=_default_banner, help="Path to back cover banner image (defaults to bundled 手工川 banner; pass 'none' to disable)")
     parser.add_argument("--header-title", default="", help="Report title shown in page header (left)")
     parser.add_argument("--footer-left", default="", help="Brand/author text in footer (left)")
     parser.add_argument("--stats-line", default="", help="Stats line on cover (e.g. '1,884 files ...')")
@@ -1559,11 +1560,11 @@ def main():
     parser.add_argument("--copyright", default="", help="Back cover copyright text")
     parser.add_argument("--code-max-lines", default=30, type=int, help="Max lines per code block before truncation")
     parser.add_argument("--image-cover", default=False, type=lambda x: x.lower() == 'true', help="Use frontispiece image as cover (page 1), text cover becomes page 2")
-    parser.add_argument("--wm-size", default=52, type=float, help="Watermark font size (default 52)")
-    parser.add_argument("--wm-opacity", default=None, type=float, help="Watermark opacity 0.0-1.0 (default from theme)")
+    parser.add_argument("--wm-size", default=None, type=float, help="Watermark font size (default: auto-size so text width ≈ half page width)")
+    parser.add_argument("--wm-opacity", default=0.1, type=float, help="Watermark opacity 0.0-1.0 (default 0.1)")
     parser.add_argument("--wm-angle", default=35, type=float, help="Watermark rotation angle in degrees (default 35)")
-    parser.add_argument("--wm-spacing-x", default=220, type=float, help="Watermark horizontal spacing in pt (default 220)")
-    parser.add_argument("--wm-spacing-y", default=160, type=float, help="Watermark vertical spacing in pt (default 160)")
+    parser.add_argument("--wm-spacing-x", default=9999, type=float, help="Watermark horizontal spacing in pt (default 9999 = single centered per page)")
+    parser.add_argument("--wm-spacing-y", default=9999, type=float, help="Watermark vertical spacing in pt (default 9999 = single centered per page)")
     parser.add_argument("--heading-top-spacer", default=5, type=float, help="Top spacer before H1/H2 chapter titles in mm (default 5)")
     args = parser.parse_args()
 
@@ -1594,7 +1595,7 @@ def main():
         "toc": args.toc,
         "page_size": A4 if args.page_size == "A4" else LETTER,
         "frontispiece": args.frontispiece,
-        "banner": args.banner,
+        "banner": "" if args.banner.lower() == "none" else args.banner,
         "header_title": args.header_title,
         "footer_left": args.footer_left or args.author,
         "stats_line": args.stats_line,
