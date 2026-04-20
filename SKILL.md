@@ -18,7 +18,7 @@ compatibility: >
   Linux: uses Carlito, Liberation Serif, Droid Sans Fallback, DejaVu Sans Mono.
 metadata:
   author: lovstudio
-  version: "1.3.2"
+  version: "1.3.3"
   tags: markdown pdf cjk reportlab typesetting
 ---
 
