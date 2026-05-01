@@ -1,4 +1,4 @@
-# lovstudio:any2pdf
+# lovstudio-any2pdf
 
 ![Version](https://img.shields.io/badge/version-1.2.0-CC785C)
 
@@ -9,7 +9,7 @@ Part of [lovstudio/skills](https://github.com/lovstudio/skills) &mdash; by [lovs
 ## Install
 
 ```bash
-npx skills add lovstudio/skills --skill lovstudio:any2pdf
+npx lovstudio skills add any2pdf -g -y
 ```
 
 Requires: Python 3.8+ and `pip install reportlab`
