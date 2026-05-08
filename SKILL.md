@@ -21,7 +21,7 @@ compatibility: >
   DejaVu Sans Mono, and Noto Emoji when available.
 metadata:
   author: lovstudio
-  version: "1.3.3"
+  version: "1.3.4"
   tags: markdown pdf cjk reportlab typesetting
 ---
 
