@@ -19,63 +19,41 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Skip if commit is from auto-tagger
-        id: skip
-        run: |
-          MSG=$(git log -1 --pretty=%s)
-          if echo "$MSG" | grep -qE '^(chore: bump version|v[0-9])'; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Read version from SKILL.md
-        if: steps.skip.outputs.skip == 'false'
+      - name: Validate declared version
         id: ver
         run: |
           VER=$(grep -E '^  version:' SKILL.md | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
+          MANIFEST_VER=$(grep -E '^version:' skill.yaml | head -1 | sed -E 's/version:[[:space:]]*"?([^"[:space:]]+)"?/\1/')
+          README_VER=$(grep -Eo 'badge/version-[0-9]+\.[0-9]+\.[0-9]+' README.md | head -1 | sed 's|badge/version-||')
+          test -n "$VER"
+          test "$VER" = "$MANIFEST_VER"
+          test "$VER" = "$README_VER"
           echo "version=$VER" >> $GITHUB_OUTPUT
-          echo "Current SKILL.md version: $VER"
-
-      - name: Bump patch version
-        if: steps.skip.outputs.skip == 'false'
-        id: bump
-        run: |
-          CUR="${{ steps.ver.outputs.version }}"
-          IFS='.' read -r MAJ MIN PAT <<< "$CUR"
-          NEW="$MAJ.$MIN.$((PAT+1))"
-          echo "new=$NEW" >> $GITHUB_OUTPUT
-          echo "Bumping: $CUR -> $NEW"
+          echo "Validated release version: $VER"
 
       - name: Check tag doesn't already exist
-        if: steps.skip.outputs.skip == 'false'
         id: check
         run: |
-          TAG="v${{ steps.bump.outputs.new }}"
+          TAG="v${{ steps.ver.outputs.version }}"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Update SKILL.md version and tag
-        if: steps.skip.outputs.skip == 'false' && steps.check.outputs.exists == 'false'
+      - name: Tag declared version
+        if: steps.check.outputs.exists == 'false'
         run: |
-          NEW="${{ steps.bump.outputs.new }}"
-          sed -i -E "s/(^  version: )\"[^\"]+\"/\1\"$NEW\"/" SKILL.md
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add SKILL.md
-          git commit -m "chore: bump version to $NEW"
-          git tag "v$NEW"
-          git push origin main --tags
+          git tag "v${{ steps.ver.outputs.version }}"
+          git push origin "v${{ steps.ver.outputs.version }}"
 
       - name: Extract release notes from CHANGELOG
-        if: steps.skip.outputs.skip == 'false' && steps.check.outputs.exists == 'false'
+        if: steps.check.outputs.exists == 'false'
         id: notes
         run: |
-          NEW="${{ steps.bump.outputs.new }}"
+          NEW="${{ steps.ver.outputs.version }}"
           if [ -f CHANGELOG.md ]; then
             NOTES=$(awk -v ver="[$NEW]" '
               /^## / { if (found) exit; if (index($0, ver)) { found=1; next } }
@@ -90,8 +68,8 @@ jobs:
           } >> $GITHUB_OUTPUT
 
       - uses: softprops/action-gh-release@v2
-        if: steps.skip.outputs.skip == 'false' && steps.check.outputs.exists == 'false'
+        if: steps.check.outputs.exists == 'false'
         with:
-          tag_name: v${{ steps.bump.outputs.new }}
-          name: v${{ steps.bump.outputs.new }}
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: v${{ steps.ver.outputs.version }}
           body: ${{ steps.notes.outputs.notes }}

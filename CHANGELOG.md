@@ -3,6 +3,16 @@
 All notable changes to this skill are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/)
 
+## [1.4.0] - 2026-08-22
+
+### Added
+
+- add Songti reading theme for long Chinese reports
+- use Songti SC Regular with sans headings and explicit symbol fallback
+- add continuous headings, readable tables, and fit-width opening behavior
+- add focused typography regression tests
+- keep release tags aligned with the version declared across README, SKILL.md, and skill.yaml
+
 ## [1.3.4] - 2026-05-08
 
 ### Added
