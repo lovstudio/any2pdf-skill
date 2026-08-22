@@ -1,17 +1,9 @@
 ---
 name: lov-any2pdf
-category: Document Conversion
-tagline: "Markdown → professionally typeset PDF. CJK/Latin mixed text, code blocks, tables, [16 themes](docs/THEME-GALLERY.md)."
 description: >
-  Convert Markdown documents to professionally typeset PDF files. Primary engine:
-  reportlab (cover pages, frontispiece, back cover, bookmarks). Fallback engine:
-  pandoc + XeLaTeX (better table handling, LaTeX-quality typesetting). Handles
-  CJK/Latin mixed text, fenced code blocks, tables, blockquotes, Obsidian
-  callouts, inline images, emoji fallback, LaTeX-style formulas, clickable TOC,
-  watermarks, headers/footers, and page numbers. Supports multiple color themes
-  and is battle-tested for Chinese technical reports. Trigger when user mentions
-  "markdown to PDF", "md2pdf", "any2pdf", "md转pdf", "报告生成", "导出pdf",
-  or wants a professionally formatted PDF from markdown.
+  Convert Markdown to polished PDF with CJK typography, code, tables, images,
+  covers, TOC, bookmarks, and reading themes. Trigger on md2pdf, Chinese report
+  typesetting, or print-ready PDF requests.
 license: MIT
 compatibility: >
   Requires Python 3.8+ and reportlab (`pip install reportlab`).
@@ -21,8 +13,13 @@ compatibility: >
   DejaVu Sans Mono, and Noto Emoji when available.
 metadata:
   author: contributors
-  version: "1.4.0"
-  tags: markdown pdf cjk reportlab typesetting
+  version: "1.4.1"
+  tags:
+    - markdown
+    - pdf
+    - cjk
+    - reportlab
+    - typesetting
 ---
 
 # any2pdf — Markdown to Professional PDF
@@ -32,7 +29,9 @@ reportlab library. It was developed through extensive iteration on real Chinese
 technical reports and solves several hard problems that naive MD→PDF converters
 get wrong.
 
-## When to Use
+## Triggers
+
+### Activate when
 
 - User wants to convert `.md` → `.pdf`
 - User has a markdown report/document and wants professional typesetting
@@ -40,6 +39,12 @@ get wrong.
 - Document has fenced code blocks, markdown tables, or nested lists
 - Document has local/remote images, Obsidian callouts, emoji, or math formulas
 - User wants a cover page, table of contents, or watermark in their PDF
+
+### Do not activate when
+
+- The user only wants to revise Markdown content and does not need a PDF output.
+- The source is HTML, DOCX, or another format and the user has not authorized a Markdown conversion step.
+- The user needs a slide deck, editable Word document, or image export rather than a PDF.
 
 ## Quick Start
 
@@ -193,7 +198,7 @@ fallback or they may render as `□` even when the surrounding Chinese is correc
 
 ### Images Silently Dropped (Relative Paths)
 
-`![alt](charts/chart_01.png)` in a markdown file used to get skipped without warning
+An image reference to `charts/chart_01.png` in a markdown file used to get skipped without warning
 because the image path was resolved against the current working directory, not the
 markdown's directory. **Fix**: `main()` now passes `input_dir` (the .md's directory)
 into the builder, and the image handler resolves relative paths against it. Missing
@@ -203,7 +208,7 @@ dropping.
 ### Multi-Line Image References (pandoc `--wrap=auto`)
 
 When feeding pandoc's output into md2pdf, pandoc's default `--wrap=auto` (72 cols)
-wraps long `![alt text very long](path.png)` across multiple lines, which defeated
+wraps long image references to paths such as `path.png` across multiple lines, which defeated
 the single-line image regex. **Fix**: `_preprocess_md()` now collapses multi-line
 image references into one line (outside code fences) before parsing.
 

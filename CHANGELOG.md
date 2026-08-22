@@ -3,6 +3,14 @@
 All notable changes to this skill are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/)
 
+## [1.4.1] - 2026-08-22
+
+### Fixed
+
+- fix Skill Publisher source validation contract
+- use portable frontmatter and explicit trigger/non-trigger rules
+- replace broken external preview links with a self-contained theme index
+
 ## [1.4.0] - 2026-08-22
 
 ### Added

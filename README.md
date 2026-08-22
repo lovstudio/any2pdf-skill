@@ -1,6 +1,6 @@
 # lov-any2pdf
 
-![Version](https://img.shields.io/badge/version-1.4.0-CC785C)
+![Version](https://img.shields.io/badge/version-1.4.1-CC785C)
 
 Markdown to professionally typeset PDF with [reportlab](https://docs.reportlab.com/). CJK/Latin mixed text, code blocks, tables, images, Obsidian callouts, emoji fallback, formulas, cover pages, TOC, bookmarks, watermarks, and 16 themes.
 
@@ -65,23 +65,15 @@ watermark: DRAFT
 ## Themes
 
 `songti-reading` is the recommended preset when sustained Chinese reading matters
-more than compact page count. The preview gallery below covers the legacy color themes.
+more than compact page count.
 
-| warm-academic | nord-frost | github-light | solarized-light |
-|:---:|:---:|:---:|:---:|
-| ![warm-academic](../../docs/previews/warm-academic.png) | ![nord-frost](../../docs/previews/nord-frost.png) | ![github-light](../../docs/previews/github-light.png) | ![solarized-light](../../docs/previews/solarized-light.png) |
-
-| paper-classic | ocean-breeze | tufte | classic-thesis |
-|:---:|:---:|:---:|:---:|
-| ![paper-classic](../../docs/previews/paper-classic.png) | ![ocean-breeze](../../docs/previews/ocean-breeze.png) | ![tufte](../../docs/previews/tufte.png) | ![classic-thesis](../../docs/previews/classic-thesis.png) |
-
-| ieee-journal | elegant-book | chinese-red | ink-wash |
-|:---:|:---:|:---:|:---:|
-| ![ieee-journal](../../docs/previews/ieee-journal.png) | ![elegant-book](../../docs/previews/elegant-book.png) | ![chinese-red](../../docs/previews/chinese-red.png) | ![ink-wash](../../docs/previews/ink-wash.png) |
-
-| monokai-warm | dracula-soft |
-|:---:|:---:|
-| ![monokai-warm](../../docs/previews/monokai-warm.png) | ![dracula-soft](../../docs/previews/dracula-soft.png) |
+| Reading and print | Technical and modern | Specialized |
+|---|---|---|
+| songti-reading | github-light | consulting-navy |
+| warm-academic | nord-frost | ieee-journal |
+| paper-classic | ocean-breeze | elegant-book |
+| classic-thesis | solarized-light | chinese-red |
+| tufte | monokai-warm / dracula-soft | ink-wash |
 
 ## License
 
